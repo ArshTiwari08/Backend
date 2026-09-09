@@ -1,0 +1,19 @@
+{
+  "name": "lecture_07",
+  "version": "1.0.0",
+  "description": "to Setup for the professional backend",
+  "license": "ISC",
+  "author": "Ankush tiwari",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14",
+    "prettier": "^3.9.6"
+  }
+}
