@@ -3,6 +3,12 @@ const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema(
   {
+    name: {
+      type: String,
+      trim: true,
+      maxlength: 100,
+    },
+
     email: {
       type: String,
       required: true,
@@ -18,11 +24,6 @@ const userSchema = new mongoose.Schema(
       select: false,
     },
 
-    name: {
-      type: String,
-      trim: true,
-    },
-
     failedLoginAttempts: {
       type: Number,
       default: 0,
@@ -30,22 +31,38 @@ const userSchema = new mongoose.Schema(
 
     lockUntil: {
       type: Date,
+      default: null,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
+// Hash password before saving
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password')) {
+    return next();
+  }
 
-  const salt = await bcrypt.genSalt(12);
-  this.password = await bcrypt.hash(this.password, salt);
-
+  this.password = await bcrypt.hash(this.password, 12);
   next();
 });
 
-userSchema.methods.comparePassword = function (candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
+// Compare password
+userSchema.methods.comparePassword = function (password) {
+  return bcrypt.compare(password, this.password);
 };
 
-module.exports = mongoose.model('User', userSchema, 'auth_info');
+// Return safe user data
+userSchema.methods.toSafeObject = function () {
+  const user = this.toObject();
+
+  delete user.password;
+  delete user.failedLoginAttempts;
+  delete user.lockUntil;
+
+  return user;
+};
+
+module.exports = mongoose.model('User', userSchema);
