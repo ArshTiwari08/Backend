@@ -21,6 +21,8 @@ connectDB()
     console.log("mongoDB connection feiled error!", err)
 })
 
+
+// Wey to connect mongodb with backend
 /*
 import express from "express"
 const app = express()
