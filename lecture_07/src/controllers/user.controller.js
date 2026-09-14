@@ -25,11 +25,11 @@ const registerUser = asynchandler(async(req,res)=>{
     // }
     // Second step to check the  validation
 
-    console.log("BODY:", req.body)
-    console.log("fullname:", fullname)
-    console.log("email:", email)
-    console.log("username:", username)
-    console.log("password exists:", !!password)
+    // console.log("BODY:", req.body)
+    // console.log("fullname:", fullname)
+    // console.log("email:", email)
+    // console.log("username:", username)
+    // console.log("password exists:", !!password)
 
     if (
         [fullname, email, username, password].some(
@@ -48,10 +48,22 @@ const registerUser = asynchandler(async(req,res)=>{
     console.log(req.files)
 
     const avatarLocalPath = req.files?.avatar?.[0]?.path
-    const coverImageLocalPath = req.files?.coverImage?.[0]?.path
+    // advance Checking for both entry avatar and coverImage
+    // const coverImageLocalPath = req.files?.coverImage?.[0]?.path
 
-    console.log("AVATAR PATH:", avatarLocalPath)
-    console.log("COVER PATH:", coverImageLocalPath)
+
+//if coverImage is optional
+    let coverImageLocalPath;
+    if (
+        req.files &&
+        Array.isArray(req.files.coverImage) &&
+        req.files.coverImage.length > 0
+    ) {
+        coverImageLocalPath = req.files.coverImage[0].path;
+    }
+
+    // console.log("AVATAR PATH:", avatarLocalPath)
+    // console.log("COVER PATH:", coverImageLocalPath)
 
     if (!avatarLocalPath) {
         throw new ApiError(400, "Avatar file is required")
