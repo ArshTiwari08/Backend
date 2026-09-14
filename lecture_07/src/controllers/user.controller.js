@@ -1,5 +1,5 @@
 import {asynchandler} from "../utils/asynchandler.js"
-import ApiError from "../utils/ApiError.js"
+import { ApiError } from "../utils/ApiError.js"
 import { User } from "../models/user.model.js"
 import {uploadOnCloudnary } from '../utils/cloudnary.js'
 // import upload  from "../middlewares/multer.middleware.js"
@@ -18,29 +18,42 @@ const registerUser = asynchandler(async(req,res)=>{
 // return responce
 
     const {fullname,email,username,password }= req.body
-    console.log("email",email);
 
     // first step to  check the validation
     // if(fullname === ""){
     //     throw new ApiError(400,"fullname is required")
     // }
     // Second step to check the  validation
-    if(
-        [fullname,email,username,password].some((field)=> field?.trim()==="")
-    ){
-        throw new ApiError(400, "All filed are required")
+
+    console.log("BODY:", req.body)
+    console.log("fullname:", fullname)
+    console.log("email:", email)
+    console.log("username:", username)
+    console.log("password exists:", !!password)
+
+    if (
+        [fullname, email, username, password].some(
+            (field) => !field?.trim()
+        )
+    ) {
+        throw new ApiError(400, "All fields are required")
     }
 
-    const existedUser = User.findOne({
+    const existedUser = await User.findOne({
         $or:[{ username },{ email }]
     })
     if( existedUser){
         throw new ApiError(409,"user with the email or username is already exists")
     }
+    console.log(req.files)
 
-    const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.converImage[0]?.path;
-    if(!avatarLocalPath){
+    const avatarLocalPath = req.files?.avatar?.[0]?.path
+    const coverImageLocalPath = req.files?.coverImage?.[0]?.path
+
+    console.log("AVATAR PATH:", avatarLocalPath)
+    console.log("COVER PATH:", coverImageLocalPath)
+
+    if (!avatarLocalPath) {
         throw new ApiError(400, "Avatar file is required")
     }
 
@@ -50,6 +63,7 @@ const registerUser = asynchandler(async(req,res)=>{
     if(!avatar){
         throw new ApiError(400, "Avatar file is required")
     }
+
     const user =  await User.create({
         fullname,
         avatar :avatar.url,

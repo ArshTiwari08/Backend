@@ -7,7 +7,7 @@ class ApiError extends Error{
         stack = ""
     ){
         super(massage)
-        .this.statusCode = statusCode
+        this.statusCode = statusCode
         this.data = null
         this.massage = massage
         this.success = false
