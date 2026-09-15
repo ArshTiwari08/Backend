@@ -310,7 +310,7 @@ const changeCurrentPassword = asynchandler(async(req,res)=>{
 // fetch current user
 const getCurrentUser = asynchandler(async(req,res)=>{
     return res.status(200)
-    .json(200,req.user,"current user  fetched successfully")
+    .json(new ApiResponce(200,req.user,"current user  fetched successfully"))
 })
 
 // to update account details
@@ -319,7 +319,7 @@ const updateAccountDetails = asynchandler(async(req,res)=>{
     if(!fullname||email){
         throw new ApiError(400,"all field are required")
     }
-    User.findByIdAndUpdate(
+    const user = await User.findByIdAndUpdate(
         req.user?._id,
         {
             $set:{
@@ -329,6 +329,7 @@ const updateAccountDetails = asynchandler(async(req,res)=>{
         },
         {new : true}
     ).select("-password")
+
     return res
     .status(200)
     .json(new ApiResponce(200,user,"Account details updated successfully!!"))
@@ -360,7 +361,7 @@ const updateUserAvatar = asynchandler(async(req,res)=>{
 
 })
 
-// updating coverImage 
+// updating coverImage
 const updateUserCoverImage = asynchandler(async(req,res)=>{
     const coverImageLocalPath = req.file?.path
     if(!coverImageLocalPath){
