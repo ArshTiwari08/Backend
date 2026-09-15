@@ -2,7 +2,7 @@ import {asynchandler} from "../utils/asynchandler.js"
 import { ApiError } from "../utils/ApiError.js"
 import { User } from "../models/user.model.js"
 import {uploadOnCloudnary } from '../utils/cloudnary.js'
-// import upload  from "../middlewares/multer.middleware.js"
+import jwt from "jsonwebtoken"
 import { ApiResponce } from "../utils/ApiResponce.js";
 
 
@@ -227,4 +227,67 @@ const logoutUser = asynchandler(async(req, res) => {
     );
 })
 
-export{registerUser,loginUser,logoutUser}
+const refreshAccessToken = asynchandler(async (req, res) => {
+
+    const incomingRefreshToken =
+        req.cookies?.refreshToken || req.body.refreshToken;
+
+    if (!incomingRefreshToken) {
+        throw new ApiError(401, "Refresh token is required");
+    }
+
+    try {
+
+        const decodedToken = jwt.verify(
+            incomingRefreshToken,
+            process.env.REFRESH_TOKEN_SECRET
+        );
+
+        const user = await User.findById(decodedToken._id);
+
+        if (!user) {
+            throw new ApiError(401, "Invalid refresh token");
+        }
+
+        if (incomingRefreshToken !== user.refreshToken) {
+            throw new ApiError(
+                401,
+                "Refresh token is expired or invalid"
+            );
+        }
+
+        const {
+            accessToken,
+            refreshToken
+        } = await generateAccessAndRefreshTokens(user._id);
+
+        const options = {
+            httpOnly: true,
+            secure: false
+        };
+
+        return res
+            .status(200)
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", refreshToken, options)
+            .json(
+                new ApiResponce(
+                    200,
+                    {
+                        accessToken,
+                        refreshToken
+                    },
+                    "Access token refreshed successfully"
+                )
+            );
+
+    } catch (error) {
+
+        throw new ApiError(
+            401,
+            error?.message || "Invalid refresh token"
+        );
+    }
+});
+
+export{registerUser,loginUser,logoutUser,refreshAccessToken}
