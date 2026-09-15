@@ -226,6 +226,7 @@ const logoutUser = asynchandler(async(req, res) => {
     );
 })
 
+// for refresh accessToken
 const refreshAccessToken = asynchandler(async (req, res) => {
 
     const incomingRefreshToken =
@@ -289,6 +290,7 @@ const refreshAccessToken = asynchandler(async (req, res) => {
     }
 });
 
+// to change current password
 const changeCurrentPassword = asynchandler(async(req,res)=>{
     const {oldPassword,newPassword}= req.body
     const user = await User.findById(req.user?._id)
@@ -305,11 +307,13 @@ const changeCurrentPassword = asynchandler(async(req,res)=>{
     json(new ApiResponce(200,{},"password changed successfully"))
 })
 
+// fetch current user
 const getCurrentUser = asynchandler(async(req,res)=>{
     return res.status(200)
     .json(200,req.user,"current user  fetched successfully")
 })
 
+// to update account details
 const updateAccountDetails = asynchandler(async(req,res)=>{
     const{fullname,email}= req.body
     if(!fullname||email){
@@ -330,6 +334,7 @@ const updateAccountDetails = asynchandler(async(req,res)=>{
     .json(new ApiResponce(200,user,"Account details updated successfully!!"))
 })
 
+// updatig avatar image
 const updateUserAvatar = asynchandler(async(req,res)=>{
     const avatarLocalPath = req.file?.path
     if(!avatarLocalPath){
@@ -355,7 +360,7 @@ const updateUserAvatar = asynchandler(async(req,res)=>{
 
 })
 
-
+// updating coverImage 
 const updateUserCoverImage = asynchandler(async(req,res)=>{
     const coverImageLocalPath = req.file?.path
     if(!coverImageLocalPath){
