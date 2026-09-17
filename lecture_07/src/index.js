@@ -6,24 +6,24 @@ import { app } from "./app.js"
 
 const PORT = process.env.PORT || 8000
 
-connectDB()
-    .then(() => {
-        app.listen(PORT, () => {
-            console.log(`Server is running at port ${PORT}`)
-        })
+// connectDB()
+//     .then(() => {
+//         app.listen(PORT, () => {
+//             console.log(`Server is running at port ${PORT}`)
+//         })
 
-        app.on("error", (error) => {
-            console.log("Error:", error)
-            throw error
-        })
-    })
-    .catch((err) => {
-        console.log("MongoDB connection failed:", err)
-    })
+//         app.on("error", (error) => {
+//             console.log("Error:", error)
+//             throw error
+//         })
+//     })
+//     .catch((err) => {
+//         console.log("MongoDB connection failed:", err)
+//     })
 
 connectDB()
 .then(()=>{
-    app.listen(process.env.PORT || 8000,()=>{
+    app.listen(PORT || 8000,()=>{
         console.log(`server is runing at port ${process.env.PORT}`)
     })
     app.on("error",(error)=>{

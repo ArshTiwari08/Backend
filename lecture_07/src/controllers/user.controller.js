@@ -76,7 +76,6 @@ const registerUser = asynchandler(async(req,res)=>{
     if( existedUser){
         throw new ApiError(409,"user with the email or username is already exists")
     }
-    console.log(req.files)
 
     const avatarLocalPath = req.files?.avatar?.[0]?.path
     // advance Checking for both entry avatar and coverImage
