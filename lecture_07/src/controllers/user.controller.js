@@ -300,11 +300,11 @@ const changeCurrentPassword = asynchandler(async(req,res)=>{
         throw new ApiError(400,"invalid old password")
     }
     user.password = newPassword
-    await user.save({validateBeforeSave:fasle})
+    await user.save({validateBeforeSave:false})
 
     return res
-    .status(200),
-    json(new ApiResponce(200,{},"password changed successfully"))
+    .status(200)
+    .json(new ApiResponce(200,{},"password changed successfully"))
 })
 
 // fetch current user
@@ -388,72 +388,86 @@ const updateUserCoverImage = asynchandler(async(req,res)=>{
 })
 
 // simple pipeline to get subscriber and channel subscribedTO
-const getUserChannelProfile = asynchandler(async(req,res)=>{
-    const {username}= req.params
-    if(!username?.trim){
-        throw new ApiError(400,"username is missing")
+const getUserChannelProfile = asynchandler(async (req, res) => {
+
+    const { username } = req.params;
+
+    if (!username?.trim()) {
+        throw new ApiError(400, "Username is missing");
     }
-    // User.find({username})
+
     const channel = await User.aggregate([
         {
-            $match :{
-                username : username?.toLowerCase()
+            $match: {
+                username: username.toLowerCase()
             }
         },
+
         {
-            $lookup :{
-                from : "Subscription",
-                localField : "_id",
-                foreignField : "channel",
-                as : "subscriber"
+            $lookup: {
+                from: "subscriptions",
+                localField: "_id",
+                foreignField: "channel",
+                as: "subscribers"
             }
         },
+
         {
-            $lookup :{
-                from : "Subscription",
-                localField : "_id",
-                foreignField : "subscriber",
-                as : "subscribedTO"
+            $lookup: {
+                from: "subscriptions",
+                localField: "_id",
+                foreignField: "subscriber",
+                as: "subscribedTO"
             }
         },
+
         {
-            $addFields:{
-                subscriberCount :{
-                    $size : "$subscribers",
+            $addFields: {
+                subscriberCount: {
+                    $size: "$subscribers"
                 },
-                channelsSubscribedToCount :{
-                    $size : "$subscribedTO"
+
+                channelsSubscribedToCount: {
+                    $size: "$subscribedTO"
                 },
-                isSubscribed :{
-                    $cond :{
-                        if:{$in:[req.user?._id,"$subscribers.subsciber"]},
-                        then : true,
-                        else : false
-                    }
+
+                isSubscribed: {
+                    $in: [
+                        req.user?._id,
+                        "$subscribers.subscriber"
+                    ]
                 }
             }
         },
+
         {
-            $project :{
-                fullname : 1,
-                username : 1,
-                subscriberCount,
-                channelsSubscribedToCount,
-                isSubscribed,
-                avatar : 1,
-                coverImage : 1,
-                email : 1
+            $project: {
+                fullname: 1,
+                username: 1,
+                subscriberCount: 1,
+                channelsSubscribedToCount: 1,
+                isSubscribed: 1,
+                avatar: 1,
+                coverImage: 1,
+                email: 1
             }
         }
-    ])
+    ]);
 
-    if(!channel?.length){
-        throw new ApiError (404, "Channel does not exist")
+    if (!channel?.length) {
+        throw new ApiError(404, "Channel does not exist");
     }
+
     return res
-    .status(200)
-    .json(new ApiResponce(200,channel[0],"user channel fetched Successfully"))
-})
+        .status(200)
+        .json(
+            new ApiResponce(
+                200,
+                channel[0],
+                "User channel fetched successfully"
+            )
+        );
+});
 
 // to getUser video history
 
