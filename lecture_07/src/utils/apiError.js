@@ -1,5 +1,4 @@
 class ApiError extends Error{
-
     constructor(
         statusCode,
         massage =  "Something went wrong",
